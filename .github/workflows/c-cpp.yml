@@ -1,9 +1,10 @@
-name: Build Geode Mod
+name: Build Click Buffer
 
 on:
   push:
-    branches:
-      - "**"
+    branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -14,21 +15,22 @@ jobs:
     name: Build Windows (Geometry Dash 2.2074)
     runs-on: windows-latest
     steps:
-      - name: Check out repository
+      - name: Check out source
         uses: actions/checkout@v4
 
-      - name: Build with the SDK version declared in mod.json
+      - name: Build Geode mod with pinned GD 2.2074 bindings
         id: geode-build
         uses: geode-sdk/build-geode-mod@main
         with:
-          # Important: read .geode from mod.json instead of using the latest SDK.
-          # This project's mod.json pins Geode 4.10.2 for GD 2.2074.
           sdk: given
           target: Win64
+          # Pin bindings to the snapshot reported by official Geode 4.10.2 / GD 2.2074 installs.
+          # The default is the moving bindings/main branch, which is newer and failed compiling in this run.
+          bindings-ref: 262722335fa38846bd3df71ea6cad2d615534b6e
 
-      - name: Upload Windows .geode package
+      - name: Upload the compiled .geode package
         uses: actions/upload-artifact@v4
         with:
-          name: ClickBuffer-GD-2.2074
+          name: ClickBuffer-Windows-GD-2.2074
           path: ${{ steps.geode-build.outputs.build-output }}/*.geode
           if-no-files-found: error
